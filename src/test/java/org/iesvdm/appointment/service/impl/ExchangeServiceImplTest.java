@@ -11,10 +11,13 @@ import org.iesvdm.appointment.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-
+import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ExchangeServiceImplTest {
 
@@ -81,7 +84,12 @@ public class ExchangeServiceImplTest {
      */
     @Test
     void checkIfEligibleForExchange() {
-
+        appointment1.setId ( 1 );
+        Customer c =  new Customer ();
+        c.setId ( 3 );
+        appointment1.setCustomer ( c );
+        when(appointmentRepository.getOne ( 1 )).thenReturn ( appointment1 );
+        assertThat ( exchangeService.checkIfEligibleForExchange ( 3, 1 ) ).isTrue ();
     }
 
 
@@ -96,7 +104,18 @@ public class ExchangeServiceImplTest {
      */
     @Test
     void getEligibleAppointmentsForExchangeTest() {
-
+        appointmentRepository.save ( appointment1 );
+        Customer c =  new Customer ();
+        c.setId ( 1 );
+        Customer cc =  new Customer ();
+        c.setId ( 2 );
+        ArgumentCaptor<Integer> a= ArgumentCaptor.forClass ( Integer.class );
+        appointment1.setCustomer (c);
+        appointment2.setCustomer ( cc );
+        appointmentRepository.save ( appointment1 );
+        verify ( appointmentRepository.getOne ( a.capture () ) );
+        appointmentRepository.save ( appointment2 );
+        appointment2.setStart ( LocalDateTime.of(2024, 6, 17,18, 0) );
     }
 
     /**
@@ -106,7 +125,6 @@ public class ExchangeServiceImplTest {
      */
     @Test
     void checkIfExchangeIsPossibleTest() {
-
     }
 
     /**
@@ -119,7 +137,6 @@ public class ExchangeServiceImplTest {
      * Verfifica se invoca al método con el exchangeRequest del stub.
      */
      void rejectExchangeTest() {
-
      }
 
 }
